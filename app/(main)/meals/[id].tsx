@@ -2,6 +2,8 @@ import React, { useState, useCallback } from "react";
 import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet } from "react-native";
 import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { openDatabaseSync } from "expo-sqlite";
+import Meal from "../../../interfaces/meal";
+import MealRow from "../../../interfaces/mealrow";
 
 const db = openDatabaseSync("meals.db");
 
@@ -19,7 +21,7 @@ export default function MealDetailScreen() {
         FROM meals 
         LEFT JOIN meal_items ON meals.id = meal_items.meal_id
         WHERE meals.id = ${id};
-      `);
+      `) as MealRow[];
 
       if (result.length > 0) {
         setMeal({

@@ -3,17 +3,9 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native
 import { useRouter, useFocusEffect } from "expo-router";
 import { openDatabaseSync } from "expo-sqlite";
 import Meal from "../../interfaces/meal";
+import MealRow from "../../interfaces/mealrow";
 
-type MealRow = {
-  id: number;
-  name: string;
-  date: string;
-  food_name: string | undefined;
-  calories: number | undefined;
-  proteins: number | undefined;
-  carbs: number | undefined;
-  fats: number | undefined;
-};
+
 
 const db = openDatabaseSync("meals.db");
 

@@ -6,10 +6,25 @@ import { openDatabaseSync } from "expo-sqlite";
 
 const db = openDatabaseSync("meals.db");
 
+interface Nutrients {
+  ENERC_KCAL?: number;
+  PROCNT?: number;
+  FAT?: number;
+  CHOCDF?: number;
+}
+
+// Interface pour un produit
+interface Product {
+  foodId: string;
+  label: string;
+  image?: string;
+  nutrients: Nutrients;
+}
+
 export default function ProductDetailScreen() {
   const { id, mealId, mealItemId, productName } = useLocalSearchParams();
   const router = useRouter();
-  const [product, setProduct] = useState(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -63,10 +78,10 @@ export default function ProductDetailScreen() {
         <>
           <Text style={styles.title}>{product.label}</Text>
           {product.image && <Image source={{ uri: product.image }} style={styles.image} />}
-          <Text style={styles.info}>Calories : {Math.round(product.nutrients.ENERC_KCAL)} kcal</Text>
-          <Text style={styles.info}>Protéines : {Math.round(product.nutrients.PROCNT)} g</Text>
-          <Text style={styles.info}>Lipides : {Math.round(product.nutrients.FAT)} g</Text>
-          <Text style={styles.info}>Glucides : {Math.round(product.nutrients.CHOCDF)} g</Text>
+          <Text style={styles.info}>Calories : {Math.round(product.nutrients.ENERC_KCAL ?? 0)} kcal</Text>
+          <Text style={styles.info}>Protéines : {Math.round(product.nutrients.PROCNT ?? 0)} g</Text>
+          <Text style={styles.info}>Lipides : {Math.round(product.nutrients.FAT ?? 0)} g</Text>
+          <Text style={styles.info}>Glucides : {Math.round(product.nutrients.CHOCDF ?? 0)} g</Text>
 
           <TouchableOpacity style={styles.deleteButton} onPress={deleteFoodItem}>
             <Text style={styles.deleteText}>🗑️ Supprimer cet aliment</Text>

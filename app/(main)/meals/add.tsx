@@ -33,7 +33,7 @@ export default function AddFoodScreen() {
         console.log("Aucun aliment trouvé pour ce code-barres.");
         setFoodResults([]);
       } else {
-        setFoodResults(response.data.hints.map((item) => item.food));
+        setFoodResults(response.data.hints.map((item: any) => item.food));
       }
     } catch (error) {
       console.error("Erreur lors de la recherche par code-barres :", error);
@@ -42,7 +42,7 @@ export default function AddFoodScreen() {
     setLoading(false);
   };
 
-  const searchFoodByText = async (query) => {
+  const searchFoodByText = async (query: string) => {
     if (!query) return;
     setLoading(true);
   
@@ -56,10 +56,10 @@ export default function AddFoodScreen() {
         setFoodResults([]);
       } else {
         let items = response.data.hints
-          .map((item) => item.food)
-          .filter((item) => item.foodId && item.label);
+          .map((item: any) => item.food)
+          .filter((item: any) => item.foodId && item.label);
   
-        items = Array.from(new Map(items.map((item) => [item.foodId, item])).values());
+        items = Array.from(new Map(items.map((item: any) => [item.foodId, item])).values());
   
         setFoodResults(items);
       }
@@ -71,7 +71,7 @@ export default function AddFoodScreen() {
   };
   
 
-  const addFoodToMeal = (food) => {
+  const addFoodToMeal = (food: any) => {
     const calories = Math.round(food.nutrients?.ENERC_KCAL || 0);
     const proteins = Math.round(food.nutrients?.PROCNT || 0);
     const carbs = Math.round(food.nutrients?.CHOCDF || 0);
@@ -103,7 +103,7 @@ export default function AddFoodScreen() {
 
       <FlatList
         data={foodResults}
-        keyExtractor={(item, index) => item.label + index}
+        keyExtractor={(item: any, index) => item.label + index}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.foodItem} onPress={() => addFoodToMeal(item)}>
             <View>
