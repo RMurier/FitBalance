@@ -47,7 +47,7 @@ export default function FoodDetailScreen() {
         style: "destructive",
         onPress: () => {
           console.log(id);
-          db.execSync(`DELETE FROM meals WHERE id = ${id};`);
+          db.execSync(`DELETE FROM meals WHERE id = ${id};`,);
           router.replace("/");
         },
       },

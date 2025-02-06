@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { View, ActivityIndicator, StyleSheet, Text } from "react-native";
 import {
   useCameraPermissions,
@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 
 export default function CameraScreen() {
+  const { mealId } = useLocalSearchParams(); // Récupère l'ID du repas
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<CameraType>("back");
   const [scanned, setScanned] = useState(false);
@@ -24,17 +25,17 @@ export default function CameraScreen() {
     setFacing((current) => (current === "back" ? "front" : "back"));
   };
 
-  // ✅ Fonction qui détecte et envoie le QR Code scanné
   const handleBarcodeScanned = (result: BarcodeScanningResult) => {
     if (scanned) return;
     setScanned(true);
 
-    // Récupérer le texte du QR Code
     const qrData = result.data;
     console.log("QR Code scanné :", qrData);
 
-    // Envoyer à la page "add" pour lancer la recherche
-    router.replace({ pathname: "/add", params: { barcode: qrData } });
+    router.replace({
+      pathname: "/meals/add",
+      params: { barcode: qrData, mealId: mealId }, // Ajoute l'ID du repas
+    });
   };
 
   if (!permission?.granted) {
