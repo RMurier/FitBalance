@@ -2,7 +2,7 @@ import { Tabs, useRouter } from "expo-router";
 import { tokenCache } from "../../cache";
 import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
 
 export default function RootLayout() {
@@ -51,7 +51,12 @@ export default function RootLayout() {
   );
 }
 
-function AuthGate({ children }) {
+
+interface AuthGateProps {
+  children: React.ReactNode;
+}
+
+function AuthGate({ children }: AuthGateProps) {
   const { isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
 

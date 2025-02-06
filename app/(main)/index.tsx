@@ -2,6 +2,18 @@ import React, { useState, useCallback } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
 import { openDatabaseSync } from "expo-sqlite";
+import Meal from "../../interfaces/meal";
+
+type MealRow = {
+  id: number;
+  name: string;
+  date: string;
+  food_name: string | undefined;
+  calories: number | undefined;
+  proteins: number | undefined;
+  carbs: number | undefined;
+  fats: number | undefined;
+};
 
 const db = openDatabaseSync("meals.db");
 
@@ -30,7 +42,7 @@ db.execSync(`
 
 export default function MealListScreen() {
   const router = useRouter();
-  const [meals, setMeals] = useState([]);
+  const [meals, setMeals] = useState([] as Meal[]);
 
   // Fonction pour récupérer les repas avec les macronutriments
   const fetchMeals = useCallback(async () => {
@@ -45,10 +57,10 @@ export default function MealListScreen() {
         FROM meals 
         LEFT JOIN meal_items ON meals.id = meal_items.meal_id
         ORDER BY meals.date DESC;
-      `);
+      `) as MealRow[];
 
-      // Grouper les aliments par repas
-      const groupedMeals = result.reduce((acc, row) => {
+
+      const groupedMeals = result.reduce<Record<number, Meal>>((acc, row: MealRow) => {
         if (!acc[row.id]) {
           acc[row.id] = {
             id: row.id,
@@ -69,10 +81,10 @@ export default function MealListScreen() {
             carbs: row.carbs,
             fats: row.fats,
           });
-          acc[row.id].totalCalories += row.calories;
-          acc[row.id].totalProteins += row.proteins;
-          acc[row.id].totalCarbs += row.carbs;
-          acc[row.id].totalFats += row.fats;
+          acc[row.id].totalCalories += row.calories ?? 0;
+          acc[row.id].totalProteins += row.proteins ?? 0;
+          acc[row.id].totalCarbs += row.carbs ?? 0;
+          acc[row.id].totalFats += row.fats ?? 0;
         }
         return acc;
       }, {});

@@ -12,7 +12,7 @@ export default function AddMealScreen() {
   const [foodResults, setFoodResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const searchFood = async (query) => {
+  const searchFood = async (query: string) => {
     if (!query) return;
     setLoading(true);
 
@@ -21,7 +21,7 @@ export default function AddMealScreen() {
         `${process.env.EXPO_PUBLIC_EDAMAM_BASE_URL}/auto-complete?q=${query}&app_id=${process.env.EXPO_PUBLIC_EDAMAM_APP_ID}&app_key=${process.env.EXPO_PUBLIC_EDAMAM_KEY}`
       );
 
-      setFoodResults(response.data.map((name) => ({ label: name })));
+      setFoodResults(response.data.map((name: any) => ({ label: name })));
     } catch (error) {
       console.error("Erreur lors de la recherche :", error);
     }
