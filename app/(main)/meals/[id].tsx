@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { openDatabaseSync } from "expo-sqlite";
 
@@ -17,13 +17,13 @@ export default function MealDetailScreen() {
 
   const fetchMealDetails = async () => {
     try {
-      const result = db.getAllSync(
-        `SELECT meals.name AS meal_name, meals.date, 
-                meal_items.id, meal_items.idFood, meal_items.name AS food_name, meal_items.calories
-         FROM meals 
-         LEFT JOIN meal_items ON meals.id = meal_items.meal_id
-         WHERE meals.id = ${id};`,
-      );
+      const result = db.getAllSync(`
+        SELECT meals.name AS meal_name, meals.date, 
+               meal_items.id, meal_items.idFood, meal_items.name AS food_name, meal_items.calories
+        FROM meals 
+        LEFT JOIN meal_items ON meals.id = meal_items.meal_id
+        WHERE meals.id = ${id};
+      `);
 
       if (result.length > 0) {
         setMeal({
@@ -45,6 +45,34 @@ export default function MealDetailScreen() {
     } catch (error) {
       console.error("Erreur de récupération du repas :", error);
     }
+  };
+
+  const deleteMeal = () => {
+    Alert.alert(
+      "Supprimer ce repas ?",
+      "Voulez-vous vraiment supprimer ce repas et tous ses aliments associés ?",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Supprimer",
+          onPress: () => {
+            try {
+              // Supprime tous les aliments du repas
+              db.execSync(`DELETE FROM meal_items WHERE meal_id = ${id};`);
+
+              // Supprime le repas
+              db.execSync(`DELETE FROM meals WHERE id = ${id};`);
+
+              // Redirection vers la page d'accueil
+              router.replace("/");
+            } catch (error) {
+              console.error("Erreur lors de la suppression du repas :", error);
+            }
+          },
+          style: "destructive",
+        },
+      ]
+    );
   };
 
   return (
@@ -72,6 +100,11 @@ export default function MealDetailScreen() {
 
           <TouchableOpacity style={styles.button} onPress={() => router.push(`/meals/add?mealId=${id}`)}>
             <Text style={styles.buttonText}>➕ Ajouter un aliment</Text>
+          </TouchableOpacity>
+
+          {/* 🔥 Bouton pour supprimer le repas */}
+          <TouchableOpacity style={styles.deleteButton} onPress={deleteMeal}>
+            <Text style={styles.deleteButtonText}>🗑️ Supprimer le repas</Text>
           </TouchableOpacity>
         </>
       ) : (
@@ -106,4 +139,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   buttonText: { color: "white", fontSize: 18, fontWeight: "bold" },
+  deleteButton: {
+    marginTop: 20,
+    backgroundColor: "red",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  deleteButtonText: { color: "white", fontSize: 18, fontWeight: "bold" },
 });
