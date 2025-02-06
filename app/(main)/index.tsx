@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { openDatabaseSync } from "expo-sqlite";
 
 const db = openDatabaseSync("meals.db");
@@ -33,7 +33,7 @@ export default function MealListScreen() {
   const [meals, setMeals] = useState([]);
 
   // Fonction pour récupérer les repas avec les macronutriments
-  const fetchMeals = async () => {
+  const fetchMeals = useCallback(async () => {
     try {
       const result = await db.getAllAsync(`
         SELECT meals.id, meals.name, meals.date, 
@@ -81,11 +81,14 @@ export default function MealListScreen() {
     } catch (error) {
       console.error("Erreur de récupération des repas:", error);
     }
-  };
-
-  useEffect(() => {
-    fetchMeals();
   }, []);
+
+  // Recharger les repas chaque fois que l'écran devient actif
+  useFocusEffect(
+    useCallback(() => {
+      fetchMeals();
+    }, [fetchMeals])
+  );
 
   return (
     <View style={styles.container}>

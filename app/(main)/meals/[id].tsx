@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { openDatabaseSync } from "expo-sqlite";
 
 const db = openDatabaseSync("meals.db");
@@ -11,11 +11,7 @@ export default function MealDetailScreen() {
   const [meal, setMeal] = useState(null);
   const [items, setItems] = useState([]);
 
-  useEffect(() => {
-    fetchMealDetails();
-  }, [id]);
-
-  const fetchMealDetails = async () => {
+  const fetchMealDetails = useCallback(async () => {
     try {
       const result = db.getAllSync(`
         SELECT meals.name AS meal_name, meals.date, 
@@ -45,7 +41,13 @@ export default function MealDetailScreen() {
     } catch (error) {
       console.error("Erreur de récupération du repas :", error);
     }
-  };
+  }, [id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchMealDetails();
+    }, [fetchMealDetails])
+  );
 
   const deleteMeal = () => {
     Alert.alert(
@@ -58,9 +60,7 @@ export default function MealDetailScreen() {
           onPress: () => {
             try {
               db.execSync(`DELETE FROM meal_items WHERE meal_id = ${id};`);
-
               db.execSync(`DELETE FROM meals WHERE id = ${id};`);
-
               router.replace("/");
             } catch (error) {
               console.error("Erreur lors de la suppression du repas :", error);

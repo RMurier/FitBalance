@@ -20,7 +20,6 @@ export default function AddFoodScreen() {
     }
   }, [barcode]);
 
-  // 🔎 Recherche d'un aliment via un code-barres
   const searchFoodByBarcode = async (barcode) => {
     if (!barcode) return;
     setLoading(true);
@@ -43,25 +42,35 @@ export default function AddFoodScreen() {
     setLoading(false);
   };
 
-  // 🔎 Recherche d'un aliment via un texte
   const searchFoodByText = async (query) => {
     if (!query) return;
     setLoading(true);
-
+  
     try {
       const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_EDAMAM_BASE_URL}/api/food-database/v2/parser?upc=${barcode}&app_id=${process.env.EXPO_PUBLIC_EDAMAM_APP_ID}&app_key=${process.env.EXPO_PUBLIC_EDAMAM_KEY}`
+        `${process.env.EXPO_PUBLIC_EDAMAM_BASE_URL}/api/food-database/v2/parser?ingr=${query}&app_id=${process.env.EXPO_PUBLIC_EDAMAM_APP_ID}&app_key=${process.env.EXPO_PUBLIC_EDAMAM_KEY}`
       );
-
-      setFoodResults(response.data.hints.map((item) => item.food));
+  
+      if (!response.data.hints || response.data.hints.length === 0) {
+        console.log("Aucun aliment trouvé.");
+        setFoodResults([]);
+      } else {
+        let items = response.data.hints
+          .map((item) => item.food)
+          .filter((item) => item.foodId && item.label);
+  
+        items = Array.from(new Map(items.map((item) => [item.foodId, item])).values());
+  
+        setFoodResults(items);
+      }
     } catch (error) {
       console.error("Erreur lors de la recherche par texte :", error);
     }
-
+  
     setLoading(false);
   };
+  
 
-  // ✅ Ajoute un aliment avec ses nutriments (calories, protéines, glucides, lipides)
   const addFoodToMeal = (food) => {
     const calories = Math.round(food.nutrients?.ENERC_KCAL || 0);
     const proteins = Math.round(food.nutrients?.PROCNT || 0);
@@ -97,7 +106,7 @@ export default function AddFoodScreen() {
       {/* Affichage des résultats */}
       <FlatList
         data={foodResults}
-        keyExtractor={(item, index) => item.foodId || item.label || index.toString()}
+        keyExtractor={(item, index) => item.label}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.foodItem} onPress={() => addFoodToMeal(item)}>
             <View>

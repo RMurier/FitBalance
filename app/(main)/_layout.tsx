@@ -42,7 +42,6 @@ export default function RootLayout() {
           {/* 🚫 On cache ces routes de la barre */}
           <Tabs.Screen name="add" options={{ href: null }} />
           <Tabs.Screen name="meals/add" options={{ href: null }} />
-          <Tabs.Screen name="meals" options={{ href: null }} />
           <Tabs.Screen name="meals/[id]" options={{ href: null }} />
           <Tabs.Screen name="product/[id]" options={{ href: null }} />
           <Tabs.Screen name="meals/camera" options={{ href: null }} />
