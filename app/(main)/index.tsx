@@ -5,14 +5,14 @@ import { openDatabaseSync } from "expo-sqlite";
 
 const db = openDatabaseSync("meals.db");
 
-// Création des tables si elles n'existent pas
+// Création des tables avec macronutriments
 db.execSync(`
   CREATE TABLE IF NOT EXISTS meals (
     id INTEGER PRIMARY KEY AUTOINCREMENT, 
     name TEXT NOT NULL,
     date TEXT NOT NULL
-  );`
-);
+  );
+`);
 
 db.execSync(`
   CREATE TABLE IF NOT EXISTS meal_items (
@@ -21,31 +21,58 @@ db.execSync(`
     idFood TEXT NOT NULL,
     name TEXT NOT NULL, 
     calories INTEGER NOT NULL,
+    proteins REAL NOT NULL,
+    carbs REAL NOT NULL,
+    fats REAL NOT NULL,
     FOREIGN KEY(meal_id) REFERENCES meals(id)
-  );`
-);
+  );
+`);
 
 export default function MealListScreen() {
   const router = useRouter();
   const [meals, setMeals] = useState([]);
 
-  // Fonction pour récupérer les repas avec leurs aliments
+  // Fonction pour récupérer les repas avec les macronutriments
   const fetchMeals = async () => {
     try {
       const result = await db.getAllAsync(`
-        SELECT meals.id, meals.name, meals.date, meal_items.name AS food_name, meal_items.calories
+        SELECT meals.id, meals.name, meals.date, 
+               meal_items.name AS food_name, 
+               meal_items.calories, 
+               meal_items.proteins, 
+               meal_items.carbs, 
+               meal_items.fats
         FROM meals 
         LEFT JOIN meal_items ON meals.id = meal_items.meal_id
         ORDER BY meals.date DESC;
       `);
 
+      // Grouper les aliments par repas
       const groupedMeals = result.reduce((acc, row) => {
         if (!acc[row.id]) {
-          acc[row.id] = { id: row.id, name: row.name, date: row.date, items: [], totalCalories: 0 };
+          acc[row.id] = {
+            id: row.id,
+            name: row.name,
+            date: row.date,
+            items: [],
+            totalCalories: 0,
+            totalProteins: 0,
+            totalCarbs: 0,
+            totalFats: 0,
+          };
         }
         if (row.food_name) {
-          acc[row.id].items.push({ name: row.food_name, calories: row.calories });
+          acc[row.id].items.push({
+            name: row.food_name,
+            calories: row.calories,
+            proteins: row.proteins,
+            carbs: row.carbs,
+            fats: row.fats,
+          });
           acc[row.id].totalCalories += row.calories;
+          acc[row.id].totalProteins += row.proteins;
+          acc[row.id].totalCarbs += row.carbs;
+          acc[row.id].totalFats += row.fats;
         }
         return acc;
       }, {});
@@ -77,6 +104,10 @@ export default function MealListScreen() {
             >
               <Text style={styles.mealName}>{item.name} - {item.date}</Text>
               <Text>Calories : {item.totalCalories} kcal</Text>
+              <Text>Protéines : {item.totalProteins.toFixed(1)} g</Text>
+              <Text>Glucides : {item.totalCarbs.toFixed(1)} g</Text>
+              <Text>Lipides : {item.totalFats.toFixed(1)} g</Text>
+
               {item.items.map((food, index) => (
                 <Text key={index} style={styles.foodItem}>🍽 {food.name} ({food.calories} kcal)</Text>
               ))}

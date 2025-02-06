@@ -57,13 +57,10 @@ export default function MealDetailScreen() {
           text: "Supprimer",
           onPress: () => {
             try {
-              // Supprime tous les aliments du repas
               db.execSync(`DELETE FROM meal_items WHERE meal_id = ${id};`);
 
-              // Supprime le repas
               db.execSync(`DELETE FROM meals WHERE id = ${id};`);
 
-              // Redirection vers la page d'accueil
               router.replace("/");
             } catch (error) {
               console.error("Erreur lors de la suppression du repas :", error);
@@ -102,7 +99,6 @@ export default function MealDetailScreen() {
             <Text style={styles.buttonText}>➕ Ajouter un aliment</Text>
           </TouchableOpacity>
 
-          {/* 🔥 Bouton pour supprimer le repas */}
           <TouchableOpacity style={styles.deleteButton} onPress={deleteMeal}>
             <Text style={styles.deleteButtonText}>🗑️ Supprimer le repas</Text>
           </TouchableOpacity>
