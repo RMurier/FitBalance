@@ -19,11 +19,10 @@ export default function MealDetailScreen() {
     try {
       const result = db.getAllSync(
         `SELECT meals.name AS meal_name, meals.date, 
-                meal_items.id, meal_items.name AS food_name, meal_items.calories
+                meal_items.id, meal_items.idFood, meal_items.name AS food_name, meal_items.calories
          FROM meals 
          LEFT JOIN meal_items ON meals.id = meal_items.meal_id
-         WHERE meals.id = ?;`,
-        [id]
+         WHERE meals.id = ${id};`,
       );
 
       if (result.length > 0) {
@@ -34,7 +33,12 @@ export default function MealDetailScreen() {
 
         const foodItems = result
           .filter((row) => row.food_name)
-          .map((row) => ({ id: row.id, name: row.food_name, calories: row.calories }));
+          .map((row) => ({
+            id: row.id,
+            idFood: row.idFood,
+            name: row.food_name,
+            calories: row.calories,
+          }));
 
         setItems(foodItems);
       }
@@ -54,10 +58,15 @@ export default function MealDetailScreen() {
             data={items}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
-              <View style={styles.foodItem}>
-                <Text style={styles.foodName}>{item.name}</Text>
-                <Text style={styles.foodCalories}>{item.calories} kcal</Text>
-              </View>
+              <TouchableOpacity
+                style={styles.foodItem}
+                onPress={() => router.push(`/product/${item.idFood}?mealId=${id}&mealItemId=${item.id}&productName=${item.name}`)}
+              >
+                <View>
+                  <Text style={styles.foodName}>{item.name}</Text>
+                  <Text style={styles.foodCalories}>{item.calories} kcal</Text>
+                </View>
+              </TouchableOpacity>
             )}
           />
 
@@ -79,9 +88,13 @@ const styles = StyleSheet.create({
   foodItem: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     padding: 10,
     borderBottomWidth: 1,
     borderColor: "#ddd",
+    backgroundColor: "#f9f9f9",
+    borderRadius: 8,
+    marginBottom: 10,
   },
   foodName: { fontSize: 18 },
   foodCalories: { fontSize: 16, color: "#888" },
