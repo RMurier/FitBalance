@@ -59,7 +59,7 @@ export default function MealListScreen() {
         />
       )}
 
-      <TouchableOpacity style={styles.addButton} onPress={() => router.push("/(main)/add")}>
+      <TouchableOpacity style={styles.addButton} onPress={() => router.push("/add")}>
         <Text style={styles.addButtonText}>+ Ajouter un repas</Text>
       </TouchableOpacity>
     </View>
