@@ -89,7 +89,6 @@ export default function AddFoodScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Ajouter un aliment</Text>
 
-      {/* Champ de recherche */}
       <TextInput
         style={styles.input}
         placeholder="Rechercher un aliment..."
@@ -98,15 +97,13 @@ export default function AddFoodScreen() {
         onSubmitEditing={() => searchFoodByText(searchTerm)}
       />
 
-      {/* Bouton Scan QR Code */}
       <TouchableOpacity style={styles.button} onPress={() => router.push(`/meals/camera?mealId=${mealId}`)}>
         <Text style={styles.buttonText}>📷 Scanner un Code-Barres</Text>
       </TouchableOpacity>
 
-      {/* Affichage des résultats */}
       <FlatList
         data={foodResults}
-        keyExtractor={(item, index) => item.label}
+        keyExtractor={(item, index) => item.label + index}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.foodItem} onPress={() => addFoodToMeal(item)}>
             <View>
