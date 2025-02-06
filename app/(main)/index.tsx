@@ -2,18 +2,14 @@ import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { openDatabaseSync } from "expo-sqlite";
+import Meal from "../../interfaces/meal";
 
 const db = openDatabaseSync("meals.db");
-
-interface Meal {
-  id: number;
-  name: string;
-  calories: number;
-}
 
 db.execAsync(
   `CREATE TABLE IF NOT EXISTS meals (
     id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    idFood TEXT NOT NULL,
     name TEXT NOT NULL, 
     calories INTEGER NOT NULL
   );`
@@ -50,7 +46,7 @@ export default function MealListScreen() {
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.mealItem}
-              onPress={() => router.push(`/meal/${item.id}`)}
+              onPress={() => {console.log(item);router.push(`/(main)/${item.id}`)}}
             >
               <Text style={styles.mealName}>{item.name}</Text>
               <Text style={styles.calories}>{item.calories} kcal</Text>

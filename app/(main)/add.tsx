@@ -8,7 +8,7 @@ const db = openDatabaseSync("meals.db");
 
 export default function AddMealScreen() {
   const router = useRouter();
-  const { barcode } = useLocalSearchParams(); // ✅ Récupère le QR Code scanné
+  const { barcode } = useLocalSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [foodResults, setFoodResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -68,7 +68,7 @@ export default function AddMealScreen() {
 
   const addFoodToDatabase = (food) => {
     db.execSync(
-      `INSERT INTO meals (name, calories) VALUES ('${food.label}', ${food.nutrients?.ENERC_KCAL ? Math.round(food.nutrients.ENERC_KCAL) : 0});`
+      `INSERT INTO meals (idFood, name, calories) VALUES ('${food.foodId}', '${food.label}', ${food.nutrients?.ENERC_KCAL ? Math.round(food.nutrients.ENERC_KCAL) : 0});`
     );
     router.replace("/");
   };
